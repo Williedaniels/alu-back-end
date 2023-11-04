@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 """
 gathing data from an api
-"""
+i"""
+
+import json
 import requests
 import sys
 
 if __name__ == "__main__":
     user_id = int(sys.argv[1])
+    file = f"{user_id}.json"
 
     r1 = requests.get("https://jsonplaceholder.typicode.com/users")
 
@@ -18,18 +21,19 @@ if __name__ == "__main__":
 
     for user in users:
         if user.get("id") == user_id:
-            name = user.get("name")
+            name = user.get("username")
 
-    total = 0
-    done = 0
-    task_done = []
+    my_dict = {}
+    value = []
     for todo in todos:
         if todo.get("userId") == user_id:
-            total += 1
-            if todo.get("completed"):
-                task_done.append(todo.get("title"))
-                done += 1
+            todo.update({"task": todo.get("title")})
+            todo.update({"username": name})
+            for _ in ["title", "id", "userId"]:
+                del todo[_]
+            value.append(todo)
 
-    print(f"Employee {name} is done with tasks({done}/{total}):")
-    for task in task_done:
-        print(f"\t {task}")
+    my_dict[user_id] = value
+
+    with open(file, 'w') as f:
+        json.dump(my_dict, f)
